@@ -1,4 +1,7 @@
+//C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\brick_texture.png
 #include <SFML/Graphics.hpp>
+#include <time.h>
+using namespace sf;
 
 const int M = 20; // высота игрового поля
 const int N = 10; // ширина игрового поля
@@ -9,74 +12,186 @@ int field[M][N] = { 0 }; // игровое поле
 int figures[7][4] =
 {
 	1,3,5,7, // I
-	2,4,5,7, // S
-	3,5,4,6, // Z
+	2,4,5,7, // Z
+	3,5,4,6, // S
 	3,5,4,7, // T
 	2,3,5,7, // L
 	3,5,7,6, // J
 	2,3,4,5, // O
 };
 
-class Point {
-public:
-	int x;
-	int y;
+struct Point
+{
+	int x, y;
+} a[4], b[4];
+
+// Проверка на выход за границы игрового поля
+bool check()
+{
+	for (int i = 0; i < 4; i++)
+		if (a[i].x < 0 || a[i].x >= N || a[i].y >= M) return 0;
+		else if (field[a[i].y][a[i].x]) return 0;
+
+	return 1;
 
 };
-
-Point a[4];
-Point b[4];
 
 
 int main()
 {
-	//перемещение по оси икс
-	int dx = 0;
+	srand(time(0));
 
-	sf::RenderWindow window(sf::VideoMode(320, 480), "Tetris");
-	//include texture
-	sf::Texture brick_texture;
-	brick_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\brick_texture.png");
+	RenderWindow window(VideoMode(180, 360), "Tetris");
 
-	sf::Sprite brick_sprite(brick_texture);
-	brick_sprite.setTextureRect(sf::IntRect(0, 0, 18, 18));
+	// Создание и загрузка текстуры
+	Texture texture, texture_background, texture_frame;
+	texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\brick_texture.png");
+	
 
-	// Главный цикл приложения: выполняется, пока открыто окно
+	// Создание спрайта
+	Sprite sprite(texture), sprite_background(texture_background), sprite_frame(texture_frame);
+
+	// Вырезаем из спрайта отдельный квадратик размером 18х18 пикселей
+	sprite.setTextureRect(IntRect(0, 0, 18, 18));
+
+	// Переменные для горизонтального перемещения и вращения
+	int dx = 0; bool rotate = 0; int colorNum = 1; bool beginGame = true; int n = rand() % 7;
+
+	// Переменные для таймера и задержки
+	float timer = 0, delay = 0.3;
+
+	// Часы (таймер)
+	Clock clock;
+
+
+	// Главный цикл приложения. Выполняется, пока открыто окно
 	while (window.isOpen())
 	{
-		// Обрабатываем события в цикле
-		sf::Event event;
+		// Получаем время, прошедшее с начала отсчета, и конвертируем его в секунды
+		float time = clock.getElapsedTime().asSeconds();
+		clock.restart();
+		timer += time;
+
+		// Обрабатываем очередь событий в цикле
+		Event event;
 		while (window.pollEvent(event))
 		{
-			// Пользователь нажал на «крестик» и хочет закрыть окно?
-			if (event.type == sf::Event::Closed) {
+			// Пользователь нажал на «крестик» и хочет окно закрыть?
+			if (event.type == Event::Closed)
 				// тогда закрываем его
 				window.close();
+
+			// Была нажата кнопка на клавиатуре?
+			if (event.type == Event::KeyPressed)
+				// Эта кнопка – стрелка вверх?…
+				if (event.key.code == Keyboard::Up) rotate = true;
+			// …или же стрелка влево?…
+				else if (event.key.code == Keyboard::Left) dx = -1;
+			// …ну тогда может это стрелка вправо?
+				else if (event.key.code == Keyboard::Right) dx = 1;
+		}
+
+		// Нажали кнопку "вниз"? Ускоряем падение тетрамино
+		if (Keyboard::isKeyPressed(Keyboard::Down)) delay = 0.05;
+
+		//// Горизонтальное перемещение ////
+		for (int i = 0; i < 4; i++) { b[i] = a[i]; a[i].x += dx; }
+
+		// Вышли за пределы поля после перемещения? Тогда возвращаем старые координаты 
+		if (!check()) for (int i = 0; i < 4; i++) a[i] = b[i];
+
+
+		//// Вращение ////
+		if (rotate)
+		{
+			Point p = a[1]; // задаем центр вращения
+			for (int i = 0; i < 4; i++)
+			{
+				int x = a[i].y - p.y; //y-y0
+				int y = a[i].x - p.x; //x-x0
+				a[i].x = p.x - x;
+				a[i].y = p.y + y;
 			}
-							
+			// Вышли за пределы поля после поворота? Тогда возвращаем старые координаты 
+			if (!check()) { for (int i = 0; i < 4; i++) a[i] = b[i]; }
+
 		}
 
-		int n = 1; // задаем тип тетрамино
-		for (int i = 0; i < 4; i++)
+		//// Движение тетрамино вниз (Тик таймера) ////
+		if (timer > delay)
 		{
-			a[i].x = figures[n][i] % 2;
-			a[i].y = figures[n][i] / 2;
+			for (int i = 0; i < 4; i++) { b[i] = a[i]; a[i].y += 1; }
+			if (!check())
+			{
+				for (int i = 0; i < 4; i++) field[b[i].y][b[i].x] = colorNum;
+				colorNum = 1 + rand() % 7;
+				n = rand() % 7;
+				for (int i = 0; i < 4; i++)
+				{
+					a[i].x = figures[n][i] % 2;
+					a[i].y = figures[n][i] / 2;
+				}
+
+			}
+			timer = 0;
+
 		}
 
-		// Установка цвета фона - белый
-		window.clear(sf::Color(175, 213, 252));
+		//----ПРОВЕРКА ЛИНИИ----//
+		int k = M - 1;
+		for (int i = M - 1; i > 0; i--)
+		{
+			int count = 0;
+			for (int j = 0; j < N; j++)
+			{
+				if (field[i][j]) count++;
+				field[k][j] = field[i][j];
+			}
+			if (count < N) k--;
+		}
+
+		// Первое появление тетрамино на поле?
+		if (beginGame)
+		{
+			beginGame = false;
+			n = rand() % 7;
+			for (int i = 0; i < 4; i++)
+			{
+				a[i].x = figures[n][i] % 2;
+				a[i].y = figures[n][i] / 2;
+			}
+		}
+		dx = 0; rotate = 0; delay = 0.3;
+
+		//----ОТРИСОВКА----//
+
+		// Задаем цвет фона - белый
+		window.clear(Color::White);
+		window.draw(sprite_background);
+		for (int i = 0; i < M; i++)
+			for (int j = 0; j < N; j++)
+			{
+				if (field[i][j] == 0) continue;
+				sprite.setTextureRect(IntRect(field[i][j] * 18, 0, 18, 18));
+				sprite.setPosition(j * 18, i * 18);
+				window.draw(sprite);
+			}
 
 		for (int i = 0; i < 4; i++)
 		{
+			// Разукрашиваем тетрамино
+			sprite.setTextureRect(IntRect(colorNum * 18, 0, 18, 18));
+
 			// Устанавливаем позицию каждого кусочка тетрамино
-			brick_sprite.setPosition(a[i].x * 18, a[i].y * 18);
+			sprite.setPosition(a[i].x * 18, a[i].y * 18);
+
+			
+
 			// Отрисовка спрайта
-			window.draw(brick_sprite);
+			window.draw(sprite);
 		}
-
-		window.draw(brick_sprite);
-
-
+		// Отрисовка фрейма
+		window.draw(sprite_frame);
 
 		// Отрисовка окна
 		window.display();
