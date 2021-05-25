@@ -1,97 +1,84 @@
 #include <SFML/Graphics.hpp>
 
+const int M = 20; // высота игрового поля
+const int N = 10; // ширина игрового поля
+
+int field[M][N] = { 0 }; // игровое поле
+
+// Массив фигурок-тетрамино
+int figures[7][4] =
+{
+	1,3,5,7, // I
+	2,4,5,7, // S
+	3,5,4,6, // Z
+	3,5,4,7, // T
+	2,3,5,7, // L
+	3,5,7,6, // J
+	2,3,4,5, // O
+};
+
+class Point {
+public:
+	int x;
+	int y;
+
+};
+
+Point a[4];
+Point b[4];
 
 
 int main()
 {
-	// Устанавливаем 8-й уровень сглаживания
-	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
+	//перемещение по оси икс
+	int dx = 0;
 
-	// Объект, который, собственно, является главным окном приложения
-	sf::RenderWindow window(sf::VideoMode(800, 400), "Tetris", sf::Style::Default, settings);
+	sf::RenderWindow window(sf::VideoMode(320, 480), "Tetris");
+	//include texture
+	sf::Texture brick_texture;
+	brick_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\brick_texture.png");
 
-	// Главный цикл приложения. Выполняется, пока открыто окно
+	sf::Sprite brick_sprite(brick_texture);
+	brick_sprite.setTextureRect(sf::IntRect(0, 0, 18, 18));
+
+	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{
-		// Обрабатываем очередь событий в цикле
+		// Обрабатываем события в цикле
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
 			// Пользователь нажал на «крестик» и хочет закрыть окно?
-			if (event.type == sf::Event::Closed)
+			if (event.type == sf::Event::Closed) {
 				// тогда закрываем его
 				window.close();
+			}
+							
 		}
-		//цвет окна
-		window.clear(sf::Color(189, 162, 162, 0));
 
-		//создание и отрисовка круга
-		sf::CircleShape circle(50.f);
-		circle.move(15, 15);
-		circle.setFillColor(sf::Color(100, 142, 227));
-		circle.setOutlineThickness(15.f);
-		circle.setOutlineColor(sf::Color(230, 0, 230));
-		window.draw(circle);
+		int n = 1; // задаем тип тетрамино
+		for (int i = 0; i < 4; i++)
+		{
+			a[i].x = figures[n][i] % 2;
+			a[i].y = figures[n][i] / 2;
+		}
 
-		//треугольник
-		sf::CircleShape triangle(65.0f, 3);
-		triangle.move(150, 15);
-		triangle.setFillColor(sf::Color::Yellow);
-		window.draw(triangle);
+		// Установка цвета фона - белый
+		window.clear(sf::Color(175, 213, 252));
 
-		//квадрат
-		sf::CircleShape square(60, 4);
-		square.move(300, 15);
-		square.setFillColor(sf::Color::Blue);
-		window.draw(square);
+		for (int i = 0; i < 4; i++)
+		{
+			// Устанавливаем позицию каждого кусочка тетрамино
+			brick_sprite.setPosition(a[i].x * 18, a[i].y * 18);
+			// Отрисовка спрайта
+			window.draw(brick_sprite);
+		}
 
-		//октагон
-		sf::CircleShape octagon(60, 8);
-		octagon.move(450, 15);
-		octagon.setFillColor(sf::Color::Cyan);
-		window.draw(octagon);
-
-		//задаём вершины многоугольника
-		sf::ConvexShape figure;
-		figure.setPointCount(4);
-		figure.setPoint(0, sf::Vector2f(0, 0));
-		figure.setPoint(1, sf::Vector2f(100, 30));
-		figure.setPoint(2, sf::Vector2f(100, 130));
-		figure.setPoint(3, sf::Vector2f(0, 100));
-		figure.setFillColor(sf::Color::Black);
-		figure.move(600, 15);
-		window.draw(figure);
-
-		//прямоугольник
-		sf::RectangleShape rectangle (sf::Vector2f(200, 150));
-		rectangle.setFillColor(sf::Color::Magenta);
-		rectangle.move(30, 150);
-		window.draw(rectangle);
-
-		//текстуры
-		sf::Texture brick_texture;
-		//тут нужно указать своё расположение картинки и не забыть про два слэша
-		//второй аргумент для загрузки части изображения, начиная с координат (0;0)
-		brick_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\brick.jpg", sf::IntRect(0, 0, 1000, 1000));
-		sf::Sprite brick_sprite(brick_texture, sf::IntRect(0, 0, 200, 200));
-		brick_texture.setSmooth(true);
-		brick_sprite.move(300, 150);
 		window.draw(brick_sprite);
 
-		//синий спрайт
-		sf::Sprite blue_brick(brick_texture, sf::IntRect(0, 0, 200, 200));
-		blue_brick.setColor(sf::Color::Blue);
-		blue_brick.move(520, 150);
 
-		blue_brick.move(100, 0);
-		blue_brick.setRotation(45.0f);
-		blue_brick.setScale(0.5, 0.5);
-		window.draw(blue_brick);
-		
-		
 
-		// Отрисовка окна	
+		// Отрисовка окна
 		window.display();
 	}
 
