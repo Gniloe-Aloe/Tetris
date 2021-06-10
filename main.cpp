@@ -3,6 +3,8 @@
 #include <chrono>
 #include <thread>
 
+//C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png
+
 sf::Color random_color() {
 	return sf::Color(rand() % 256, rand() % 256, rand() % 256);
 }
