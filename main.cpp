@@ -1,164 +1,198 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
 #include <vector>
-
-class blok {
-public:
-	int x = 0;
-	int y = 0;
-	blok() {};
-	blok(int x, int y) :x(x), y(y) {};
-	bool out_field_right() {
-		if (x == 9 )
-			return true;
-		else
-			return false;	
-	}
-	bool out_field_left() {
-		if (x == 0)
-			return true;
-		else
-			return false;
-	}
-};
-
-class tetramino {
-public:
-	blok bloks[4];
-
-	void set_figure(int value) {
-		// тетрамино I
-		if (value == 0) {
-			for (int i = 0; i < 4; ++i) {
-				bloks[i].x = 5;
-				bloks[i].y = i;
-			}
-		}
-	}
-	bool tetramino_out_of_field() {
-		for (int i = 0; i < 4; ++i) {
-			if (bloks[i].out_field_right() == true || bloks[i].out_field_left() == true) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	void move_right() {
-		for (int i = 0; i < 4; ++i) {
-			++bloks[i].x;
-		}
-	}
-
-		
-		
-	
-};
-
-
-
 //C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png
 
-sf::Color random_color() {
-	return sf::Color(rand() % 256, rand() % 256, rand() % 256);
-}
+class Block {
+public:
+	bool available = false;
+	sf::Sprite block_sprite;
+	int x;
+	int y;
+	sf::Color color;
 
-
-
-int main()
-{
-	const int CELLS_SIZE = 45;
-	bool presed = true;
 	
+
+
+	Block() {};
+	void set_texture(const sf::Texture& texture) {
+		block_sprite.setTexture(texture);
+	}
+	void set_coordinate(const int x, const int y) {
+		this->x = x;
+		this->y = y;
+	}
+	void set_position(const int& SIZE) {
+		block_sprite.move(x * SIZE, y * SIZE);
+	}
+	void set_color(int color_number) {
+		switch (color_number)
+		{
+		case 0:
+			color = sf::Color::Cyan;
+		case 1:
+			color = sf::Color::Magenta;
+		case 2:
+			color = sf::Color::Blue;
+		case 3:
+			color = sf::Color::Green;
+		case 4:
+			color = sf::Color::Red;
+		case 5:
+			color = sf::Color::White;
+		case 6:
+			color = sf::Color::Yellow;
+		}
+		block_sprite.setColor(color);
+	}
+
 	
+};
+
+class Player {
+public:
+	int x;
+	int y;
+	Player() {
+		x = 10;
+		y = 10;
+	}
+
+};
+
+
+
+
+
+int main() {
+	//подключение файлов и инициализаци€ констант
+	sf::Texture BLOCK_TEXTURE;
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png");
+	sf::Sprite block_sprite(BLOCK_TEXTURE);
+
+	//конец игры
+	sf::Texture endgane_texture;
+	endgane_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\end.png");
+	sf::Sprite endgame_sprite(endgane_texture);
+
+	//начало игры
+	sf::Texture startgame_texture;
+	startgame_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\start.png");
+	sf::Sprite startgame_sprite(startgame_texture);
+	bool start = true;
+
+	const unsigned int CAGE_SIZE = 45;
+	const unsigned int FIELD_WIDTH = 11;
+	const unsigned int FIELD_HEIGHT = 11;
+	const sf::Color background(130, 155, 207);
+
 
 	srand(time(NULL));
 
-	sf::RenderWindow window(sf::VideoMode(450, 900), "Tetris!");
-	sf::Color fon;
-	fon = sf::Color::Magenta;
 
+	//создание двумерного массива из блоков под игровое поле
+	Block field[FIELD_WIDTH][FIELD_HEIGHT];
+	for (int i = 0; i < FIELD_WIDTH; ++i) {
+		for (int j = 0; j < FIELD_HEIGHT; ++j) {
+			//задаЄм свойства дл€ каждого блока
+			field[i][j].available = false;
+			field[i][j].set_texture(BLOCK_TEXTURE);
+			field[i][j].set_coordinate(i, j);
+			field[i][j].set_position(CAGE_SIZE);
+		}
 
-	//вектор кирпичиков, из которых состоит тетрамино
-	sf::Texture block_texture;
-	block_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png");
-	
-
-	
-
-	
-	
-	
-
-	std::vector<sf::Sprite> test;
-	for (int i = 0; i < 4; ++i) {
-		test.emplace_back(block_texture);
 	}
-	//тетрамино с координатами тетрамино
-	tetramino tetramino;
-	//число задаЄт тип тетрамино
-	tetramino.set_figure(0);
-	//цикл задаЄт первоначальное расположение и форму фигуры
-	for (int i = 0; i < 4; ++i) {
-		test[i].move(tetramino.bloks[i].x * CELLS_SIZE, tetramino.bloks[i].y * CELLS_SIZE);
-	}
+	//создаЄм окно игры
+	sf::RenderWindow window(sf::VideoMode(CAGE_SIZE * FIELD_WIDTH, CAGE_SIZE * FIELD_HEIGHT), "NOT Tetris!");
+	window.clear(background);
+	Player player;
+	bool pressed = true;
+	//главный цикл при открытом окне
+	while (window.isOpen()) {
+		
 
-	// √лавный цикл приложени€: выполн€етс€, пока открыто окно
-	while (window.isOpen())
-	{
-		// ќбрабатываем событи€ в цикле
+		//отлавливаем событи€
 		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (presed) {
-				// ѕользователь нажал на Ђкрестикї и хочет закрыть окно?
-				if (event.type == sf::Event::Closed) {
-					// тогда закрываем его
-					window.close();
-				}
-				//нажатие любой кнопки
+		while (window.pollEvent(event)) {
+
+			//если закрыли окно
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
+			if (pressed) {
 				if (event.type == sf::Event::KeyPressed) {
-					presed = false;
+					pressed = false;
+					start = false;
 				}
-				
+
 				if (event.key.code == sf::Keyboard::Right) {
-					if (!tetramino.tetramino_out_of_field()) {
-						tetramino.move_right();
+					
+					if (player.x < FIELD_WIDTH-1) {
+						player.x++;
 					}
 				}
 				if (event.key.code == sf::Keyboard::Left) {
 					
+					if (player.x != 0) {
+						player.x--;
+					}
 				}
 				if (event.key.code == sf::Keyboard::Up) {
 					
-					
+					if (player.y != 0) {
+						player.y--;
+					}
 				}
 				if (event.key.code == sf::Keyboard::Down) {
 					
+					if (player.y < FIELD_HEIGHT - 1) {
+						player.y++;
+					}
 				}
 			}
 			else {
-				presed = true;
+				pressed = true;
+			}
+
+		}
+		//проверка начала
+		if (start) {
+			window.draw(startgame_sprite);
+		}
+		else {
+			window.clear(background);
+		}
+
+		
+
+		//соедин€ем игрока с полем
+		field[player.x][player.y].available = true;
+		
+
+		//отрисовываем все активные блоки на поле
+		for (int i = 0; i < FIELD_WIDTH; ++i) {
+			for (int j = 0; j < FIELD_HEIGHT; ++j) {
+				if (field[i][j].available) {
+					window.draw(field[i][j].block_sprite);
+				}
 			}
 		}
-		// ”становка цвета фона
-		window.clear(fon);
-
-
-
-		//отрисовываем все блоки у тетрамино
-		for (int i = 0; i < 4; ++i) {
-			window.draw(test[i]);
+		//провер€ем конец игры
+		bool end = true;
+		for (int i = 0; i < FIELD_WIDTH; ++i) {
+			for (int j = 0; j < FIELD_HEIGHT; ++j) {
+				if (!field[i][j].available) {
+					end = false;
+				}
+			}
 		}
-		
+		//если конец
+		if (end) {
+			window.draw(endgame_sprite);
+		}
 
 
-
-
-		// ќтрисовка окна
 		window.display();
-		
 	}
-
 	return 0;
 }
