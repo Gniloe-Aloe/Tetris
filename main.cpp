@@ -11,7 +11,6 @@ public:
 	int y;
 	sf::Color color;
 
-	
 
 
 	Block() {};
@@ -46,70 +45,44 @@ public:
 		block_sprite.setColor(color);
 	}
 
-	
-};
-
-class Player {
-public:
-	int x;
-	int y;
-	Player() {
-		x = 10;
-		y = 10;
-	}
 
 };
-
-
-
-
 
 int main() {
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png");
+	BLOCK_TEXTURE.loadFromFile("pic/block.png");
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
-	//конец игры
-	sf::Texture endgane_texture;
-	endgane_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\end.png");
-	sf::Sprite endgame_sprite(endgane_texture);
-
-	//начало игры
-	sf::Texture startgame_texture;
-	startgame_texture.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\start.png");
-	sf::Sprite startgame_sprite(startgame_texture);
-	bool start = true;
-
 	const unsigned int CAGE_SIZE = 45;
-	const unsigned int FIELD_WIDTH = 11;
-	const unsigned int FIELD_HEIGHT = 11;
+	const unsigned int FIELD_WIDTH = 10;
+	const unsigned int FIELD_HEIGHT = 20;
 	const sf::Color background(130, 155, 207);
 
-
 	srand(time(NULL));
-
-
 	//создание двумерного массива из блоков под игровое поле
 	Block field[FIELD_WIDTH][FIELD_HEIGHT];
 	for (int i = 0; i < FIELD_WIDTH; ++i) {
 		for (int j = 0; j < FIELD_HEIGHT; ++j) {
 			//задаём свойства для каждого блока
-			field[i][j].available = false;
+			field[i][j].available = true;
 			field[i][j].set_texture(BLOCK_TEXTURE);
 			field[i][j].set_coordinate(i, j);
 			field[i][j].set_position(CAGE_SIZE);
+
+
 		}
 
 	}
+
+	//тестирую цвет
+
+
 	//создаём окно игры
-	sf::RenderWindow window(sf::VideoMode(CAGE_SIZE * FIELD_WIDTH, CAGE_SIZE * FIELD_HEIGHT), "NOT Tetris!");
+	sf::RenderWindow window(sf::VideoMode(CAGE_SIZE * FIELD_WIDTH, CAGE_SIZE * FIELD_HEIGHT), "Tetris!");
 	window.clear(background);
-	Player player;
-	bool pressed = true;
 	//главный цикл при открытом окне
 	while (window.isOpen()) {
-		
 
 		//отлавливаем события
 		sf::Event event;
@@ -119,55 +92,9 @@ int main() {
 			if (event.type == sf::Event::Closed) {
 				window.close();
 			}
-			if (pressed) {
-				if (event.type == sf::Event::KeyPressed) {
-					pressed = false;
-					start = false;
-				}
-
-				if (event.key.code == sf::Keyboard::Right) {
-					
-					if (player.x < FIELD_WIDTH-1) {
-						player.x++;
-					}
-				}
-				if (event.key.code == sf::Keyboard::Left) {
-					
-					if (player.x != 0) {
-						player.x--;
-					}
-				}
-				if (event.key.code == sf::Keyboard::Up) {
-					
-					if (player.y != 0) {
-						player.y--;
-					}
-				}
-				if (event.key.code == sf::Keyboard::Down) {
-					
-					if (player.y < FIELD_HEIGHT - 1) {
-						player.y++;
-					}
-				}
-			}
-			else {
-				pressed = true;
-			}
 
 		}
-		//проверка начала
-		if (start) {
-			window.draw(startgame_sprite);
-		}
-		else {
-			window.clear(background);
-		}
 
-		
-
-		//соединяем игрока с полем
-		field[player.x][player.y].available = true;
-		
 
 		//отрисовываем все активные блоки на поле
 		for (int i = 0; i < FIELD_WIDTH; ++i) {
@@ -177,20 +104,6 @@ int main() {
 				}
 			}
 		}
-		//проверяем конец игры
-		bool end = true;
-		for (int i = 0; i < FIELD_WIDTH; ++i) {
-			for (int j = 0; j < FIELD_HEIGHT; ++j) {
-				if (!field[i][j].available) {
-					end = false;
-				}
-			}
-		}
-		//если конец
-		if (end) {
-			window.draw(endgame_sprite);
-		}
-
 
 		window.display();
 	}
