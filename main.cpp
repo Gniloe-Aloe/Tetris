@@ -69,7 +69,9 @@ public:
 int main() {
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
+	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
+	BLOCK_TEXTURE.loadFromFile("D:\\IFOLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
 	
@@ -103,11 +105,16 @@ int main() {
 	sf::Clock pressing_timer;
 	sf::Time pressing_delay = sf::seconds(0.01);
 
+	bool left = false;
+	bool right = false;
+	bool up = false;
+	bool down = false;
+
 	//главный цикл при открытом окне
 	while (window.isOpen()) {
 
-		
-		
+		window.clear(background);
+
 
 		//отлавливаем события
 		sf::Event event;
@@ -118,26 +125,66 @@ int main() {
 				window.close();
 			}
 
+
+
+
+			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+				if (!(sf::Event::KeyReleased))
+					right = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+				if (!(sf::Event::KeyReleased))
+					left = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+				if (!(sf::Event::KeyReleased))
+					up = true;
+			}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+				if (!(sf::Event::KeyReleased))
+					down = true;
+			}*/
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == (sf::Keyboard::D)) {
+					right = true;
+				}
+				if (event.key.code == (sf::Keyboard::A)) {
+					left = true;
+				}
+				if (event.key.code == (sf::Keyboard::W)) {
+					up = true;
+				}
+				if (event.key.code == (sf::Keyboard::S)) {
+					down = true;
+				}
+			}
 			//проверяем, прошла ли наша задержка времени отклика
 			if (pressing_timer.getElapsedTime() > pressing_delay) {
 				//нажатие клавиш
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+
+				if (right) {
 					if (player.right_resolution()) {
 						player.x++;
 					}
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+				if (left) {
 					if (player.left_resolution()) {
 						player.x--;
 					}
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+				if (up) {
 					player.y--;
 				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+				if (down) {
 					player.y++;
 				}
-				
+
+				left = false;
+				right = false;
+				up = false;
+				down = false;
+
 				pressing_timer.restart();
 			}
 
