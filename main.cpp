@@ -4,7 +4,7 @@
 //C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png
 
 //глобальные константы для игрового поля
-const unsigned int CAGE_SIZE = 45;// длинна стороны блока в пикселях
+const unsigned int CAGE_SIZE = 50;// длинна стороны блока в пикселях
 const unsigned int FIELD_WIDTH = 10;// ширина поля в блока
 const unsigned int FIELD_HEIGHT = 20;// высота поля в блоках
 
@@ -69,7 +69,7 @@ public:
 int main() {
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block.png");
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
 	
