@@ -65,11 +65,11 @@ public:
 	//провека возможности движения вправо если не вышли за пределы поля
 	//и справа нет стоящего блока
 	bool right_resolution(){
-		return (this->x < FIELD_WIDTH - 1)&&(!field[this->x+1][y].set_on_field);
+		return (this->x < FIELD_WIDTH - 1)&&(!field[this->x+1][y].available);
 	}
 	//проверка возможности движения влево
 	bool left_resolution() {
-		return (this->x > 0)&&(!field[x-1][y].set_on_field);
+		return (this->x > 0)&&(!field[x-1][y].available);
 	}
 	//проверка наличия свободного места под фигурой игрока
 	bool down_resolution() {
@@ -79,7 +79,7 @@ public:
 	//установка блока игрока на поле
 	void set_on_field(){
 		field[this->x][this->y].set_on_field = true;
-		field[this->x][this->y].available = true;
+		//field[this->x][this->y].available = true;
 		this->x = FIELD_WIDTH/2;
 		this->y = 0;
 
@@ -95,39 +95,66 @@ public:
 	}
 };
 
-void line_check() {
-	for (int heigh = 0; heigh < FIELD_HEIGHT; ++heigh) {
-		for (int width = 0; width < FIELD_WIDTH; ++width) {
-			//если на поле не стоит блок, то не проверяем линию
-			if (!field[width][heigh].set_on_field) {
-				return;
+// Проверяем линию
+bool check_line(const int& y)
+{
+	bool full = true;
+	for (int i = 0; i < FIELD_WIDTH; ++i)
+	{
+		if (!field[i][y].available)
+		{
+			full = false;
+			break;
+		}
+	}
+	return full;
+}
+
+// Удаляем линию
+void delete_line(const int& y)
+{
+	for (int i = 0; i < FIELD_WIDTH; ++i)
+	{
+		field[i][y].available = false;
+	}
+}
+
+// Сдвиг линий вниз
+void fall_line(const int& y)
+{
+	// Сдвигаем изображения, опираясь на set_on_field
+	for (int i = y - 1; i > 1; --i)
+	{
+		for (int j = 0; j < FIELD_WIDTH; ++j)
+		{
+			if (field[j][i].set_on_field)
+			{
+				field[j][i].available = false;
+				field[j][i].set_on_field = false;
+				field[j][i + 1].available = true;
 			}
 		}
-		//удаляем линию
+	}
 
+	// Сдвигаем set_on_field, опираясь на изображения
+	for (int i = 1; i < y; ++i)
+	{
+		for (int j = 0; j < FIELD_WIDTH; ++j)
+		{
+			if (field[j][i].available)
+			{
+				field[j][i].set_on_field = true;
+			}
+		}
 	}
 }
-void delete_line() {
-	
-}
-//проверка только самой нижней линии
-void test_check() {
-	for (int width = 0; width < FIELD_WIDTH; ++width) {
-		if (field[width][FIELD_HEIGHT - 1].set_on_field == false)
-			return;
-	}
-	delete_line();
-}
-
-
-
 
 int main() {
 
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
 	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
+	BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
@@ -181,6 +208,7 @@ int main() {
 
 		window.clear(background);
 
+		field[player.x][player.y].available = false;
 
 		//отлавливаем события
 		sf::Event event;
@@ -230,7 +258,7 @@ int main() {
 				}
 				//если была нажата кнопка для ускоренного падения
 				if (down_was_pressed) {
-					falling_delay = sf::seconds(0.1);
+					falling_delay = sf::seconds(0.05);
 					down_was_pressed = false;
 				}
 				else {
@@ -245,8 +273,9 @@ int main() {
 			
 		}
 
-
+		
 		//скрываем все блоки за исключением установленных на поле
+		/*
 		for (int i = 0; i < FIELD_WIDTH; ++i) {
 			for (int j = 0; j < FIELD_HEIGHT; ++j) {
 				if (!field[i][j].set_on_field) {
@@ -254,7 +283,7 @@ int main() {
 				}
 			}
 		}
-		
+		*/
 		
 		
 		//падение 
@@ -268,6 +297,11 @@ int main() {
 
 		//установка блока на поле, если больше не можем двигаться вниз
 		if (!player.down_resolution()) {
+			if (check_line(player.y))
+			{
+				delete_line(player.y);
+				fall_line(player.y);
+			}
 			player.set_on_field();
 		}
 
