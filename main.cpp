@@ -8,9 +8,13 @@ const unsigned int CAGE_SIZE = 50;// длинна стороны блока в пикселях
 const unsigned int FIELD_WIDTH = 10;// ширина поля в блока
 const unsigned int FIELD_HEIGHT = 20;// высота поля в блоках
 
+
 class Block {
 public:
+	//отображать ли блок
 	bool available = false;
+	//установлен ли блок на поле (не игроок)
+	bool set_on_field = false;
 	sf::Sprite block_sprite;
 	int x;
 	int y;
@@ -51,35 +55,88 @@ public:
 	}
 
 };
+//создание глобального двумерного массива из блоков под игровое поле
+Block field[FIELD_WIDTH][FIELD_HEIGHT];
 
 class Player {
 public:
-	int x = 0;
+	int x = FIELD_WIDTH/2;
 	int y = 0;
-	//провека возможности движения вправо 
+	//провека возможности движения вправо если не вышли за пределы поля
+	//и справа нет стоящего блока
 	bool right_resolution(){
-		return this->x < FIELD_WIDTH - 1;
+		return (this->x < FIELD_WIDTH - 1)&&(!field[this->x+1][y].set_on_field);
 	}
+	//проверка возможности движения влево
 	bool left_resolution() {
-		return this->x > 0;
+		return (this->x > 0)&&(!field[x-1][y].set_on_field);
+	}
+	//проверка наличия свободного места под фигурой игрока
+	bool down_resolution() {
+		//если не вышли за ганицы поля и под нами нет другого стоящего блока
+		return (y < FIELD_HEIGHT - 1) && (!field[x][y + 1].available);
+	}
+	//установка блока игрока на поле
+	void set_on_field(){
+		field[this->x][this->y].set_on_field = true;
+		field[this->x][this->y].available = true;
+		this->x = FIELD_WIDTH/2;
+		this->y = 0;
+
 	}
 
+
+	//падение
+	void fall() {
+		if (down_resolution()) {
+			++y;
+		}
+		
+	}
 };
 
+void line_check() {
+	for (int heigh = 0; heigh < FIELD_HEIGHT; ++heigh) {
+		for (int width = 0; width < FIELD_WIDTH; ++width) {
+			//если на поле не стоит блок, то не проверяем линию
+			if (!field[width][heigh].set_on_field) {
+				return;
+			}
+		}
+		//удаляем линию
+
+	}
+}
+void delete_line() {
+	
+}
+//проверка только самой нижней линии
+void test_check() {
+	for (int width = 0; width < FIELD_WIDTH; ++width) {
+		if (field[width][FIELD_HEIGHT - 1].set_on_field == false)
+			return;
+	}
+	delete_line();
+}
+
+
+
+
 int main() {
+
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
 	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
-	BLOCK_TEXTURE.loadFromFile("D:\\IFOLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
-	
+	//цвет фона
 	const sf::Color background(130, 155, 207);
 
 	srand(time(NULL));
-	//создание двумерного массива из блоков под игровое поле
-	Block field[FIELD_WIDTH][FIELD_HEIGHT];
+	
+	//настраиваем игровое поле
 	for (int i = 0; i < FIELD_WIDTH; ++i) {
 		for (int j = 0; j < FIELD_HEIGHT; ++j) {
 			//задаём свойства для каждого блока
@@ -101,14 +158,23 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(CAGE_SIZE * FIELD_WIDTH, CAGE_SIZE * FIELD_HEIGHT), "Tetris!");
 	window.clear(background);
 
+	//количество убранных линий
+	int score = 0;
+
 	//создание таймера и переменной задержки для нажатия на клавиши
 	sf::Clock pressing_timer;
 	sf::Time pressing_delay = sf::seconds(0.01);
 
-	bool left = false;
-	bool right = false;
+	//таймер падения
+	sf::Clock falling_timer;
+	const sf::Time difficulty_level = sf::seconds(1);
+	sf::Time falling_delay = difficulty_level;
+
+	//флаги нажатия кнопок
+	bool left_was_pressed = false;
+	bool right_was_pressed = false;
 	bool up = false;
-	bool down = false;
+	bool down_was_pressed = false;
 
 	//главный цикл при открытом окне
 	while (window.isOpen()) {
@@ -125,72 +191,85 @@ int main() {
 				window.close();
 			}
 
-
-
-
-			/*if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-				if (!(sf::Event::KeyReleased))
-					right = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-				if (!(sf::Event::KeyReleased))
-					left = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-				if (!(sf::Event::KeyReleased))
-					up = true;
-			}
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-				if (!(sf::Event::KeyReleased))
-					down = true;
-			}*/
+			//движение
 			if (event.type == sf::Event::KeyPressed)
 			{
 				if (event.key.code == (sf::Keyboard::D)) {
-					right = true;
+					right_was_pressed = true;
 				}
 				if (event.key.code == (sf::Keyboard::A)) {
-					left = true;
+					left_was_pressed = true;
 				}
-				if (event.key.code == (sf::Keyboard::W)) {
-					up = true;
-				}
+				//ускоренное падение
 				if (event.key.code == (sf::Keyboard::S)) {
-					down = true;
+					down_was_pressed = true;
+				}
+				
+				//переворот фигуры
+				if (event.key.code == (sf::Keyboard::W)) {
+					
 				}
 			}
 			//проверяем, прошла ли наша задержка времени отклика
 			if (pressing_timer.getElapsedTime() > pressing_delay) {
 				//нажатие клавиш
 
-				if (right) {
+				//движение фигуры вправо
+				if (right_was_pressed) {
 					if (player.right_resolution()) {
 						player.x++;
 					}
+					right_was_pressed = false;
 				}
-				if (left) {
+				//двидение фигуры влево
+				if (left_was_pressed) {
 					if (player.left_resolution()) {
 						player.x--;
 					}
+					left_was_pressed = false;
 				}
-				if (up) {
-					player.y--;
+				//если была нажата кнопка для ускоренного падения
+				if (down_was_pressed) {
+					falling_delay = sf::seconds(0.1);
+					down_was_pressed = false;
 				}
-				if (down) {
-					player.y++;
+				else {
+					falling_delay = difficulty_level;
 				}
-
-				left = false;
-				right = false;
-				up = false;
-				down = false;
-
+				
+					
+				
+				
 				pressing_timer.restart();
 			}
-
+			
 		}
+
+
+		//скрываем все блоки за исключением установленных на поле
+		for (int i = 0; i < FIELD_WIDTH; ++i) {
+			for (int j = 0; j < FIELD_HEIGHT; ++j) {
+				if (!field[i][j].set_on_field) {
+					field[i][j].available = false;
+				}
+			}
+		}
+		
+		
+		
+		//падение 
+		if (falling_timer.getElapsedTime() > falling_delay) {
+			player.fall();
+			falling_timer.restart();
+		}
+
 		//делаем активными блоки игрока
 		field[player.x][player.y].available = true;
+
+		//установка блока на поле, если больше не можем двигаться вниз
+		if (!player.down_resolution()) {
+			player.set_on_field();
+		}
 
 
 		//отрисовываем все активные блоки на поле
