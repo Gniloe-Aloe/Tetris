@@ -93,6 +93,9 @@ public:
 	//  онец игры
 	void game_over()
 	{
+		sf::Text endgame;
+		
+		
 		
 		window.close();
 	}
@@ -147,7 +150,9 @@ int main() {
 	//подключение файлов и инициализаци€ констант
 	sf::Texture BLOCK_TEXTURE;
 	//диапозон блоков 3 - 5
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block5_o.png");
+	//C:\Users\sayhe\Desktop\Tetris\pic
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\sayhe\\Desktop\\Tetris\\pic\\block5_o.png");
+	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block5_o.png");
 	//BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
@@ -158,12 +163,14 @@ int main() {
 	//текстура заднего фона
 	sf::Texture BACKGROUND_TEXTURE;
 	//диапозон фонов 1-4
-	BACKGROUND_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\background3.png");
+	//BACKGROUND_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\background3.png");
+	BACKGROUND_TEXTURE.loadFromFile("C:\\Users\\sayhe\\Desktop\\Tetris\\pic\\background3.png");
 	sf::Sprite background_sprite(BACKGROUND_TEXTURE);
 
 	//текстура игровой сетки
 	sf::Texture CAGE_TEXTURE;
-	CAGE_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\gaming_cage.png");
+	//CAGE_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\gaming_cage.png");
+	CAGE_TEXTURE.loadFromFile("C:\\Users\\sayhe\\Desktop\\Tetris\\pic\\gaming_cage.png");
 	sf::Sprite gaming_cage(CAGE_TEXTURE);
 	
 	srand(time(NULL));
