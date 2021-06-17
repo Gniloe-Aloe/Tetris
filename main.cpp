@@ -105,19 +105,33 @@ public:
 		endgame_text.setFont(Arial);
 
 		endgame_text.setCharacterSize(80);
-		endgame_text.setFillColor(sf::Color::Red);
+		endgame_text.setFillColor(sf::Color::White);
 		endgame_text.move(15, (FIELD_HEIGHT / 2 * CAGE_SIZE) - CAGE_SIZE * 2);
 		
 		endgame_text.setString("END GAME");
 		window.draw(endgame_text);
+
+		sf::Text score_text;
+		score_text.setFont(Arial);
+		score_text.setFillColor(sf::Color::White);
+		score_text.move(endgame_text.getPosition());
+		score_text.move(2, 100);
+
+		score_text.setString("SCORE: " + std::to_string(score * 100));
+		window.draw(score_text);
+
 		window.display();
 		sf::Clock timer;
 		
 
 		sf::Event event;
+
 		while (window.isOpen()) {
 			while (window.pollEvent(event)) {
-				if (event.type == sf::Event::KeyPressed && timer.getElapsedTime() > sf::seconds(1)) {
+				if (event.type == sf::Event::Closed) {
+					window.close();
+				}
+				if (event.type == sf::Event::KeyPressed && timer.getElapsedTime() > sf::seconds(2)) {
 					window.close();
 				}
 				
@@ -151,6 +165,7 @@ void delete_line(const int& y){
 		field[i][y].available = false;
 		field[i][y].set_on_field = false;
 	}
+	score++;
 }
 
 // Сдвиг линий вниз
