@@ -11,7 +11,8 @@ const unsigned int FIELD_HEIGHT = 20;// высота поля в блоках
 sf::RenderWindow window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // Окно игры
 //шрифт
 sf::Font Arial;
-
+//очки
+unsigned int score;
 
 
 class Block {
@@ -111,12 +112,18 @@ public:
 		window.draw(endgame_text);
 		window.display();
 		sf::Clock timer;
-		while (timer.getElapsedTime() < sf::seconds(5)) {
-			
+		
+
+		sf::Event event;
+		while (window.isOpen()) {
+			while (window.pollEvent(event)) {
+				if (event.type == sf::Event::KeyPressed && timer.getElapsedTime() > sf::seconds(1)) {
+					window.close();
+				}
+				
+				
+			}
 		}
-		
-		
-		window.close();
 	}
 
 	//падение
@@ -220,7 +227,7 @@ int main() {
 	window.clear(background);
 
 	//количество убранных линий
-	int score = 0;
+	score = 0;
 
 	//создание таймера и переменной задержки для нажатия на клавиши
 	sf::Clock pressing_timer;
@@ -292,7 +299,7 @@ int main() {
 				}
 				//если была нажата кнопка для ускоренного падения
 				if (down_was_pressed) {
-					falling_delay = sf::seconds(0.05);
+					falling_delay = sf::seconds(0.03);
 					down_was_pressed = false;
 				}
 				else {
