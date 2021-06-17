@@ -4,7 +4,7 @@
 //C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png
 
 //глобальные константы дл€ игрового пол€
-const unsigned int CAGE_SIZE = 50;// длинна стороны блока в пиксел€х
+const unsigned int CAGE_SIZE = 45;// длинна стороны блока в пиксел€х
 const unsigned int FIELD_WIDTH = 10;// ширина пол€ в блока
 const unsigned int FIELD_HEIGHT = 20;// высота пол€ в блоках
 
@@ -95,55 +95,37 @@ public:
 	}
 };
 
-// ѕровер€ем линию
-bool check_line(const int& y)
-{
-	bool full = true;
-	for (int i = 0; i < FIELD_WIDTH; ++i)
-	{
-		if (!field[i][y].available)
-		{
-			full = false;
-			break;
+// ѕровер€ем линию на заполненность
+bool check_line(const int& y){
+	for (int i = 0; i < FIELD_WIDTH; ++i){
+		if (!field[i][y].available){
+			return false;	
 		}
 	}
-	return full;
+	return true;
 }
 
 // ”дал€ем линию
-void delete_line(const int& y)
-{
-	for (int i = 0; i < FIELD_WIDTH; ++i)
-	{
+void delete_line(const int& y){
+	for (int i = 0; i < FIELD_WIDTH; ++i){
 		field[i][y].available = false;
+		field[i][y].set_on_field = false;
 	}
 }
 
 // —двиг линий вниз
-void fall_line(const int& y)
-{
+void fall_line(const int& y){
 	// —двигаем изображени€, опира€сь на set_on_field
-	for (int i = y - 1; i > 1; --i)
-	{
-		for (int j = 0; j < FIELD_WIDTH; ++j)
-		{
-			if (field[j][i].set_on_field)
-			{
+	for (int i = y - 1; i > 0; --i){
+		for (int j = 0; j < FIELD_WIDTH; ++j){
+
+			if (field[j][i].set_on_field){
+
 				field[j][i].available = false;
 				field[j][i].set_on_field = false;
 				field[j][i + 1].available = true;
-			}
-		}
-	}
+				field[j][i + 1].set_on_field = true;
 
-	// —двигаем set_on_field, опира€сь на изображени€
-	for (int i = 1; i < y; ++i)
-	{
-		for (int j = 0; j < FIELD_WIDTH; ++j)
-		{
-			if (field[j][i].available)
-			{
-				field[j][i].set_on_field = true;
 			}
 		}
 	}
@@ -153,8 +135,8 @@ int main() {
 
 	//подключение файлов и инициализаци€ констант
 	sf::Texture BLOCK_TEXTURE;
-	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block2.png");
-	BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block.png");
+	//BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
@@ -273,17 +255,6 @@ int main() {
 			
 		}
 
-		
-		//скрываем все блоки за исключением установленных на поле
-		/*
-		for (int i = 0; i < FIELD_WIDTH; ++i) {
-			for (int j = 0; j < FIELD_HEIGHT; ++j) {
-				if (!field[i][j].set_on_field) {
-					field[i][j].available = false;
-				}
-			}
-		}
-		*/
 		
 		
 		//падение 
