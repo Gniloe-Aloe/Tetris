@@ -7,6 +7,7 @@
 const unsigned int CAGE_SIZE = 45;// длинна стороны блока в пикселях
 const unsigned int FIELD_WIDTH = 10;// ширина поля в блока
 const unsigned int FIELD_HEIGHT = 20;// высота поля в блоках
+sf::RenderWindow window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // Окно игры
 
 
 class Block {
@@ -82,9 +83,19 @@ public:
 		//field[this->x][this->y].available = true;
 		this->x = FIELD_WIDTH/2;
 		this->y = 0;
+		if (!down_resolution())
+		{
+			game_over();
+		}
 
 	}
 
+	// Конец игры
+	void game_over()
+	{
+		
+		window.close();
+	}
 
 	//падение
 	void fall() {
@@ -135,8 +146,8 @@ int main() {
 
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
-	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block.png");
-	//BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block.png");
+	BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
@@ -164,7 +175,7 @@ int main() {
 
 
 	//создаём окно игры
-	sf::RenderWindow window(sf::VideoMode(CAGE_SIZE * FIELD_WIDTH, CAGE_SIZE * FIELD_HEIGHT), "Tetris!");
+	
 	window.clear(background);
 
 	//количество убранных линий
