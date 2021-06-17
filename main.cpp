@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
 #include <vector>
+#include <string>
 //C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\block.png
 
 //глобальные константы для игрового поля
@@ -8,6 +9,9 @@ const unsigned int CAGE_SIZE = 45;// длинна стороны блока в пикселях
 const unsigned int FIELD_WIDTH = 10;// ширина поля в блока
 const unsigned int FIELD_HEIGHT = 20;// высота поля в блоках
 sf::RenderWindow window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // Окно игры
+//шрифт
+sf::Font Arial;
+
 
 
 class Block {
@@ -93,8 +97,23 @@ public:
 	// Конец игры
 	void game_over()
 	{
-		sf::Text endgame;
+		//Подключение шрифта и работа с текстом
 		
+
+		sf::Text endgame_text;
+		endgame_text.setFont(Arial);
+
+		endgame_text.setCharacterSize(80);
+		endgame_text.setFillColor(sf::Color::Red);
+		endgame_text.move(15, (FIELD_HEIGHT / 2 * CAGE_SIZE) - CAGE_SIZE * 2);
+		
+		endgame_text.setString("END GAME");
+		window.draw(endgame_text);
+		window.display();
+		sf::Clock timer;
+		while (timer.getElapsedTime() < sf::seconds(5)) {
+			
+		}
 		
 		
 		window.close();
@@ -150,10 +169,9 @@ int main() {
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
 	//диапозон блоков 3 - 5
-	//C:\Users\sayhe\Desktop\Tetris\pic
-	BLOCK_TEXTURE.loadFromFile("block5_o.png");
-	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block5_o.png");
-	//BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+
+	BLOCK_TEXTURE.loadFromFile("pic//block5_o.png");
+	
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
@@ -163,15 +181,19 @@ int main() {
 	//текстура заднего фона
 	sf::Texture BACKGROUND_TEXTURE;
 	//диапозон фонов 1-4
-	//BACKGROUND_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\background3.png");
-	BACKGROUND_TEXTURE.loadFromFile("background3.png");
+	
+	BACKGROUND_TEXTURE.loadFromFile("pic//background3.png");
 	sf::Sprite background_sprite(BACKGROUND_TEXTURE);
 
 	//текстура игровой сетки
 	sf::Texture CAGE_TEXTURE;
-	//CAGE_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\gaming_cage.png");
-	CAGE_TEXTURE.loadFromFile("gaming_cage.png");
+	
+	CAGE_TEXTURE.loadFromFile("pic//gaming_cage.png");
 	sf::Sprite gaming_cage(CAGE_TEXTURE);
+
+	//Подключение шрифта и работа с текстом
+	Arial.loadFromFile("arial.ttf");
+
 	
 	srand(time(NULL));
 	
@@ -316,7 +338,7 @@ int main() {
 			}
 		}
 		window.draw(gaming_cage);
-
+		
 		window.display();
 	}
 	return 0;
