@@ -146,14 +146,26 @@ int main() {
 
 	//подключение файлов и инициализация констант
 	sf::Texture BLOCK_TEXTURE;
-	//BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block.png");
-	BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
+	//диапозон блоков 3 - 5
+	BLOCK_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\block5_o.png");
+	//BLOCK_TEXTURE.loadFromFile("D:\\IfoLabs\\GitTest\\Tetris1\\Tetris\\pic\\block2.png");
 
 	sf::Sprite block_sprite(BLOCK_TEXTURE);
 
 	//цвет фона
 	const sf::Color background(130, 155, 207);
 
+	//текстура заднего фона
+	sf::Texture BACKGROUND_TEXTURE;
+	//диапозон фонов 1-4
+	BACKGROUND_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\background3.png");
+	sf::Sprite background_sprite(BACKGROUND_TEXTURE);
+
+	//текстура игровой сетки
+	sf::Texture CAGE_TEXTURE;
+	CAGE_TEXTURE.loadFromFile("C:\\Users\\Gniloe_Aloe\\Desktop\\Tetris\\pic\\gaming_cage.png");
+	sf::Sprite gaming_cage(CAGE_TEXTURE);
+	
 	srand(time(NULL));
 	
 	//настраиваем игровое поле
@@ -199,7 +211,7 @@ int main() {
 	//главный цикл при открытом окне
 	while (window.isOpen()) {
 
-		window.clear(background);
+		window.draw(background_sprite);
 
 		field[player.x][player.y].available = false;
 
@@ -296,6 +308,7 @@ int main() {
 				}
 			}
 		}
+		window.draw(gaming_cage);
 
 		window.display();
 	}
