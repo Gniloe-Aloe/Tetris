@@ -8,7 +8,8 @@
 const unsigned int CAGE_SIZE = 45;// длинна стороны блока в пиксел€х
 const unsigned int FIELD_WIDTH = 10;// ширина пол€ в блока
 const unsigned int FIELD_HEIGHT = 20;// высота пол€ в блоках
-sf::RenderWindow window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // ќкно игры
+sf::RenderWindow gaming_window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // ќкно игры
+sf::RenderWindow setting_window(sf::VideoMode(CAGE_SIZE* FIELD_WIDTH, CAGE_SIZE* FIELD_HEIGHT), "Tetris!"); // ќкно настроек
 //шрифт
 sf::Font Arial;
 //очки
@@ -109,7 +110,7 @@ public:
 		endgame_text.move(15, (FIELD_HEIGHT / 2 * CAGE_SIZE) - CAGE_SIZE * 2);
 		
 		endgame_text.setString("END GAME");
-		window.draw(endgame_text);
+		gaming_window.draw(endgame_text);
 
 		sf::Text score_text;
 		score_text.setFont(Arial);
@@ -118,21 +119,21 @@ public:
 		score_text.move(2, 100);
 
 		score_text.setString("SCORE: " + std::to_string(score * 100));
-		window.draw(score_text);
+		gaming_window.draw(score_text);
 
-		window.display();
+		gaming_window.display();
 		sf::Clock timer;
 		
 
 		sf::Event event;
 
-		while (window.isOpen()) {
-			while (window.pollEvent(event)) {
+		while (gaming_window.isOpen()) {
+			while (gaming_window.pollEvent(event)) {
 				if (event.type == sf::Event::Closed) {
-					window.close();
+					gaming_window.close();
 				}
 				if (event.type == sf::Event::KeyPressed && timer.getElapsedTime() > sf::seconds(2)) {
-					window.close();
+					gaming_window.close();
 				}
 				
 				
@@ -239,7 +240,7 @@ int main() {
 
 	//создаЄм окно игры
 	
-	window.clear(background);
+	gaming_window.clear(background);
 
 	//количество убранных линий
 	score = 0;
@@ -259,20 +260,114 @@ int main() {
 	bool up = false;
 	bool down_was_pressed = false;
 
-	//главный цикл при открытом окне
-	while (window.isOpen()) {
+	//текстуры дл€ окна настроек
+	sf::Texture start_background;
+	start_background.loadFromFile("pic//start_back.png");
+	sf::Sprite start_background_sprite(start_background);
+	
+	sf::Texture set_color;
+	set_color.loadFromFile("pic//set_color.png");
+	sf::Sprite set_color_sprite(set_color);
+	set_color_sprite.move(75, 15);
 
-		window.draw(background_sprite);
+	sf::Texture set_cage;
+	set_cage.loadFromFile("pic//set_cage.png");
+	sf::Sprite set_cage_sprite(set_cage);
+	set_cage_sprite.move(75, 15);
+
+	sf::Texture set_block;
+	set_block.loadFromFile("pic//set_block.png");
+	
+
+	sf::Sprite set_blocks_sprites[5];
+	
+	for (int i = 0; i < 5; ++i) {
+		set_blocks_sprites[i].setPosition(75 + (5 * 30), 15 + ((19-i) * 30));
+		set_blocks_sprites[i].setTexture(set_block);
+
+		switch (i) {
+		case 0:
+			set_blocks_sprites[i].setColor(sf::Color::Red);
+			break;
+		case 1:
+			set_blocks_sprites[i].setColor(sf::Color::Cyan);
+			break;
+		case 2:
+			set_blocks_sprites[i].setColor(sf::Color::Blue);
+			break;
+		case 3:
+			set_blocks_sprites[i].setColor(sf::Color::Yellow);
+			break;
+		case 4:
+			set_blocks_sprites[i].setColor(sf::Color::Magenta);
+			break;
+		}
+	}
+
+	//главный цикл при открытом окне настроек
+	while (setting_window.isOpen()){
+		
+		setting_window.draw(start_background_sprite);
+		setting_window.draw(set_color_sprite);
+
+		for (int i = 0; i < 5; ++i) {
+			setting_window.draw(set_blocks_sprites[i]);
+		}
+		
+		setting_window.draw(set_cage_sprite);
+		sf::Event event;
+		//отлавливаем слбыти€
+		while (setting_window.pollEvent(event)) {
+
+			//если закрыли окно
+			if (event.type == sf::Event::Closed) {
+				background_sprite.setColor(set_color_sprite.getColor());
+				setting_window.close();
+			}
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == (sf::Keyboard::D)) {
+					set_color_sprite.setColor(sf::Color(rand()%240, rand()%240, rand()%240));
+				}
+				if (event.key.code == (sf::Keyboard::A)) {
+					set_color_sprite.setColor(sf::Color(rand() % 240, rand() % 240, rand() % 240));
+				}
+				if (event.key.code == (sf::Keyboard::S)) {
+					
+				}
+				if (event.key.code == (sf::Keyboard::W)) {
+				
+				}
+				//выбор
+				if (event.key.code == sf::Keyboard::Enter) {
+					background_sprite.setColor(set_color_sprite.getColor());
+					setting_window.close();
+				}
+			}
+		}
+		
+
+
+
+
+
+		setting_window.display();
+	}
+
+	//главный цикл при открытом игровом окне
+	while (gaming_window.isOpen()) {
+
+		gaming_window.draw(background_sprite);
 
 		field[player.x][player.y].available = false;
 
 		//отлавливаем событи€
 		sf::Event event;
-		while (window.pollEvent(event)) {
+		while (gaming_window.pollEvent(event)) {
 
 			//если закрыли окно
 			if (event.type == sf::Event::Closed) {
-				window.close();
+				gaming_window.close();
 			}
 
 			//движение
@@ -355,13 +450,13 @@ int main() {
 		for (int i = 0; i < FIELD_WIDTH; ++i) {
 			for (int j = 0; j < FIELD_HEIGHT; ++j) {
 				if (field[i][j].available) {
-					window.draw(field[i][j].block_sprite);
+					gaming_window.draw(field[i][j].block_sprite);
 				}
 			}
 		}
-		window.draw(gaming_cage);
+		gaming_window.draw(gaming_cage);
 		
-		window.display();
+		gaming_window.display();
 	}
 	return 0;
 }
