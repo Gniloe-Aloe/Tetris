@@ -187,6 +187,33 @@ void fall_line(const int& y){
 	}
 }
 
+//для настроек
+void demonsration_setting_block(sf::Sprite* set_blocks_sprites, int size, sf::Texture& set_block) {
+	for (int i = 0; i < 5; ++i) {
+		set_blocks_sprites[i].setPosition(75 + (5 * 30), 15 + ((19 - i) * 30));
+		set_blocks_sprites[i].setTexture(set_block);
+
+		switch (i) {
+		case 0:
+			set_blocks_sprites[i].setColor(sf::Color::Red);
+			break;
+		case 1:
+			set_blocks_sprites[i].setColor(sf::Color::Cyan);
+			break;
+		case 2:
+			set_blocks_sprites[i].setColor(sf::Color::Blue);
+			break;
+		case 3:
+			set_blocks_sprites[i].setColor(sf::Color::Yellow);
+			break;
+		case 4:
+			set_blocks_sprites[i].setColor(sf::Color::Magenta);
+			break;
+		}
+	}
+}
+
+
 int main() {
 
 	//подключение файлов и инициализация констант
@@ -251,7 +278,7 @@ int main() {
 
 	//таймер падения
 	sf::Clock falling_timer;
-	const sf::Time difficulty_level = sf::seconds(1);
+	const sf::Time difficulty_level = sf::seconds(0.5);
 	sf::Time falling_delay = difficulty_level;
 
 	//флаги нажатия кнопок
@@ -281,30 +308,9 @@ int main() {
 
 	sf::Sprite set_blocks_sprites[5];
 	
-	for (int i = 0; i < 5; ++i) {
-		set_blocks_sprites[i].setPosition(75 + (5 * 30), 15 + ((19-i) * 30));
-		set_blocks_sprites[i].setTexture(set_block);
+	demonsration_setting_block(set_blocks_sprites, 5, set_block);
 
-		switch (i) {
-		case 0:
-			set_blocks_sprites[i].setColor(sf::Color::Red);
-			break;
-		case 1:
-			set_blocks_sprites[i].setColor(sf::Color::Cyan);
-			break;
-		case 2:
-			set_blocks_sprites[i].setColor(sf::Color::Blue);
-			break;
-		case 3:
-			set_blocks_sprites[i].setColor(sf::Color::Yellow);
-			break;
-		case 4:
-			set_blocks_sprites[i].setColor(sf::Color::Magenta);
-			break;
-		}
-	}
-
-	//главный цикл при открытом окне настроек
+	//главный цикл при открытом окне настроек************************************************************************
 	while (setting_window.isOpen()){
 		
 		setting_window.draw(start_background_sprite);
@@ -354,7 +360,7 @@ int main() {
 		setting_window.display();
 	}
 
-	//главный цикл при открытом игровом окне
+	//главный цикл при открытом игровом окне**********************************************************************
 	while (gaming_window.isOpen()) {
 
 		gaming_window.draw(background_sprite);
